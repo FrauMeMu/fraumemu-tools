@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frau MeMu · Content Lead Agent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --beige: #F5EFE6;
+    --beige-dark: #EDE3D4;
+    --rose: #D4A5A5;
+    --rose-deep: #B87878;
+    --gold: #C9A84C;
+    --gold-light: #E8D5A3;
+    --green: #8A9E7A;
+    --brown: #6B4C3B;
+    --text: #3A2D25;
+    --text-light: #7A6558;
+    --white: #FDFAF6;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--beige);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* API KEY MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(58,45,37,0.55);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .modal-box {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 36px 32px;
+    max-width: 480px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(58,45,37,0.35);
+    animation: slideUp 0.35s ease;
+    position: relative;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .modal-crown {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 8px;
+  }
+
+  .modal-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.7rem;
+    font-weight: 600;
+    color: var(--brown);
+    text-align: center;
+    margin-bottom: 6px;
+  }
+
+  .modal-subtitle {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    text-align: center;
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+
+  .modal-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--brown);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .api-input-wrap {
+    position: relative;
+    margin-bottom: 10px;
+  }
+
+  .api-input {
+    width: 100%;
+    border: 1.5px solid var(--beige-dark);
+    border-radius: 10px;
+    padding: 13px 44px 13px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    color: var(--text);
+    background: var(--beige);
+    outline: none;
+    transition: border-color 0.2s;
+    letter-spacing: 0.04em;
+  }
+
+  .api-input:focus {
+    border-color: var(--rose-deep);
+    background: var(--white);
+  }
+
+  .toggle-vis {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    color: var(--text-light);
+    padding: 4px;
+  }
+
+  .api-hint {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+
+  .api-hint a {
+    color: var(--rose-deep);
+    text-decoration: none;
+  }
+
+  .api-hint a:hover { text-decoration: underline; }
+
+  .modal-save-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--brown), #8B5E4A);
+    color: var(--gold-light);
+    border: none;
+    border-radius: 10px;
+    padding: 14px 24px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.04em;
+  }
+
+  .modal-save-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(107,76,59,0.3);
+  }
+
+  .modal-error {
+    background: #fff0f0;
+    border: 1px solid var(--rose);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.8rem;
+    color: var(--rose-deep);
+    margin-bottom: 14px;
+    display: none;
+  }
+
+  .modal-error.show { display: block; }
+
+  /* API KEY STATUS IN HEADER */
+  .api-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1px solid rgba(232,213,163,0.3);
+    transition: all 0.2s;
+  }
+
+  .api-status:hover { background: rgba(255,255,255,0.1); }
+
+  .api-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #e57373;
+    flex-shrink: 0;
+  }
+
+  .api-dot.connected { background: #81c784; }
+
+  .api-status-text {
+    font-size: 0.72rem;
+    color: var(--gold-light);
+    letter-spacing: 0.06em;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--brown);
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 20px rgba(58,45,37,0.3);
+  }
+
+  .logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    letter-spacing: 0.08em;
+  }
+
+  .logo span {
+    color: var(--rose);
+    font-style: italic;
+  }
+
+  .badge {
+    background: var(--gold);
+    color: var(--brown);
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 20px;
+  }
+
+  /* MAIN LAYOUT */
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* HERO SECTION */
+  .hero {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.8rem;
+    font-weight: 300;
+    color: var(--brown);
+    line-height: 1.2;
+    margin-bottom: 12px;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--rose-deep);
+  }
+
+  .hero p {
+    color: var(--text-light);
+    font-size: 0.95rem;
+    font-weight: 300;
+    max-width: 520px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* STEP CARD */
+  .card {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 28px 32px;
+    margin-bottom: 24px;
+    border: 1px solid var(--beige-dark);
+    box-shadow: 0 2px 16px rgba(107,76,59,0.06);
+  }
+
+  .card-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--brown);
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .step-num {
+    background: var(--gold);
+    color: var(--white);
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+
+  /* TOPIC INPUT */
+  .topic-input {
+    width: 100%;
+    border: 1.5px solid var(--beige-dark);
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    color: var(--text);
+    background: var(--beige);
+    outline: none;
+    transition: border-color 0.2s;
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  .topic-input:focus {
+    border-color: var(--rose-deep);
+    background: var(--white);
+  }
+
+  .topic-input::placeholder { color: var(--text-light); }
+
+  /* FORMAT GRID */
+  .format-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+
+  .format-btn {
+    background: var(--beige);
+    border: 1.5px solid var(--beige-dark);
+    border-radius: 12px;
+    padding: 14px 12px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .format-btn:hover {
+    border-color: var(--rose-deep);
+    background: #fdf4f4;
+  }
+
+  .format-btn.active {
+    border-color: var(--rose-deep);
+    background: linear-gradient(135deg, #fdf0f0, #fdf8f0);
+    box-shadow: 0 0 0 3px rgba(184,120,120,0.15);
+  }
+
+  .format-btn .icon { font-size: 1.5rem; margin-bottom: 6px; }
+  .format-btn .label { font-size: 0.8rem; font-weight: 500; color: var(--brown); }
+  .format-btn .sublabel { font-size: 0.7rem; color: var(--text-light); margin-top: 2px; }
+
+  /* TONE SELECT */
+  .tone-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .tone-chip {
+    border: 1.5px solid var(--beige-dark);
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--beige);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .tone-chip:hover { border-color: var(--rose); }
+  .tone-chip.active {
+    background: var(--rose-deep);
+    color: var(--white);
+    border-color: var(--rose-deep);
+  }
+
+  /* GENERATE BUTTON */
+  .gen-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--brown), #8B5E4A);
+    color: var(--gold-light);
+    border: none;
+    border-radius: 12px;
+    padding: 18px 32px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.25s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .gen-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(107,76,59,0.35);
+  }
+
+  .gen-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* LOADING */
+  .loading-state {
+    text-align: center;
+    padding: 40px 0;
+    display: none;
+  }
+
+  .loading-state.show { display: block; }
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--beige-dark);
+    border-top-color: var(--rose-deep);
+    border-radius: 50%;
+    animation: spin 0.9s linear infinite;
+    margin: 0 auto 16px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-style: italic;
+    color: var(--text-light);
+  }
+
+  /* RESULTS */
+  .results-section { display: none; }
+  .results-section.show { display: block; }
+
+  .results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .results-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem;
+    font-weight: 400;
+    color: var(--brown);
+  }
+
+  .copy-all-btn {
+    background: var(--gold);
+    color: var(--white);
+    border: none;
+    border-radius: 8px;
+    padding: 8px 18px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .copy-all-btn:hover { background: #b8923e; }
+
+  /* CONTENT BLOCKS */
+  .content-block {
+    background: var(--white);
+    border-radius: 14px;
+    margin-bottom: 20px;
+    border: 1px solid var(--beige-dark);
+    overflow: hidden;
+    animation: fadeUp 0.4s ease forwards;
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .block-header {
+    background: linear-gradient(135deg, var(--beige-dark), var(--beige));
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--beige-dark);
+  }
+
+  .block-label {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--brown);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .copy-btn {
+    background: none;
+    border: 1.5px solid var(--beige-dark);
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 0.75rem;
+    color: var(--text-light);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .copy-btn:hover {
+    border-color: var(--rose);
+    color: var(--rose-deep);
+    background: #fff8f8;
+  }
+
+  .copy-btn.copied {
+    border-color: var(--green);
+    color: var(--green);
+    background: #f0f7ee;
+  }
+
+  .block-content {
+    padding: 20px 24px;
+    font-size: 0.92rem;
+    line-height: 1.75;
+    color: var(--text);
+    white-space: pre-wrap;
+    font-weight: 300;
+  }
+
+  /* EXTRAS ROW */
+  .extras-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+  }
+
+  .extra-chip {
+    background: var(--beige);
+    border: 1.5px dashed var(--gold);
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-size: 0.82rem;
+    color: var(--text-light);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .extra-chip:hover {
+    background: var(--gold-light);
+    border-style: solid;
+    color: var(--brown);
+  }
+
+  /* ERROR */
+  .error-box {
+    background: #fff0f0;
+    border: 1.5px solid var(--rose);
+    border-radius: 10px;
+    padding: 16px 20px;
+    color: var(--rose-deep);
+    font-size: 0.88rem;
+    display: none;
+    margin-top: 16px;
+  }
+
+  .error-box.show { display: block; }
+
+  /* DIVIDER */
+  .divider {
+    border: none;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-light), transparent);
+    margin: 32px 0;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .format-grid { grid-template-columns: repeat(2, 1fr); }
+    .hero h1 { font-size: 2rem; }
+    header { padding: 14px 18px; }
+    .card { padding: 20px 18px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Frau Me<span>Mu</span></div>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <div class="api-status" onclick="openApiModal()" title="API Key verwalten">
+      <div class="api-dot" id="apiDot"></div>
+      <span class="api-status-text" id="apiStatusText">API Key eingeben</span>
+    </div>
+    <div class="badge">✦ Content Agent</div>
+  </div>
+</header>
+
+<!-- API KEY MODAL -->
+<div class="modal-overlay" id="apiModal">
+  <div class="modal-box">
+    <div class="modal-crown">👑</div>
+    <div class="modal-title">API Key eingeben</div>
+    <div class="modal-subtitle">Damit dein Content Lead Agent arbeiten kann,<br>brauchst du einen Anthropic API Key.</div>
+    <label class="modal-label">Dein Anthropic API Key</label>
+    <div class="api-input-wrap">
+      <input class="api-input" type="password" id="apiKeyInput" placeholder="sk-ant-api03-..." autocomplete="off" />
+      <button class="toggle-vis" onclick="toggleVisibility()" id="toggleBtn" title="Anzeigen/Verstecken">👁️</button>
+    </div>
+    <div class="modal-error" id="modalError"></div>
+    <div class="api-hint">
+      Deinen Key findest du unter <a href="https://console.anthropic.com/account/keys" target="_blank">console.anthropic.com</a>.<br>
+      Er wird nur lokal in deinem Browser gespeichert – nirgendwo hochgeladen. 🔒
+    </div>
+    <button class="modal-save-btn" onclick="saveApiKey()">✦ Speichern & loslegen</button>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="hero">
+    <h1>Dein persönlicher<br><em>Content-Assistent</em></h1>
+    <p>Trends, Hooks, Posts, Reel-Skripte & Story-Slides – alles in deiner Stimme, für deine Community der Frauen 40+.</p>
+  </div>
+
+  <!-- STEP 1: TOPIC -->
+  <div class="card">
+    <div class="card-title">
+      <div class="step-num">1</div>
+      Dein Thema heute
+    </div>
+    <textarea class="topic-input" id="topicInput" placeholder="z.B. Cortisol und Bauchmuskeln, Schlafprobleme in der Menopause, warum du nachts schwitzt, Hormonersatztherapie Ja/Nein, Heißhunger und Östrogen ..."></textarea>
+  </div>
+
+  <!-- STEP 2: FORMAT -->
+  <div class="card">
+    <div class="card-title">
+      <div class="step-num">2</div>
+      Was soll ich erstellen?
+    </div>
+    <div class="format-grid">
+      <button class="format-btn active" onclick="selectFormat(this, 'reel')" data-format="reel">
+        <div class="icon">🎬</div>
+        <div class="label">Reel-Skript</div>
+        <div class="sublabel">Hook + Inhalt + CTA</div>
+      </button>
+      <button class="format-btn" onclick="selectFormat(this, 'post')" data-format="post">
+        <div class="icon">📸</div>
+        <div class="label">Instagram Post</div>
+        <div class="sublabel">Caption fertig zum Posten</div>
+      </button>
+      <button class="format-btn" onclick="selectFormat(this, 'story')" data-format="story">
+        <div class="icon">📖</div>
+        <div class="label">Story-Slides</div>
+        <div class="sublabel">3–5 Slide-Texte</div>
+      </button>
+      <button class="format-btn" onclick="selectFormat(this, 'carousel')" data-format="carousel">
+        <div class="icon">🎠</div>
+        <div class="label">Karussell-Post</div>
+        <div class="sublabel">Slide-Texte + Hooks</div>
+      </button>
+      <button class="format-btn" onclick="selectFormat(this, 'hashtags')" data-format="hashtags">
+        <div class="icon">#️⃣</div>
+        <div class="label">Hashtag-Set</div>
+        <div class="sublabel">30 kuratierte Tags</div>
+      </button>
+      <button class="format-btn" onclick="selectFormat(this, 'all')" data-format="all">
+        <div class="icon">✨</div>
+        <div class="label">Alles auf einmal</div>
+        <div class="sublabel">Komplett-Paket</div>
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 3: TONE -->
+  <div class="card">
+    <div class="card-title">
+      <div class="step-num">3</div>
+      Ton & Energie
+    </div>
+    <div class="tone-row">
+      <button class="tone-chip active" onclick="selectTone(this)" data-tone="empowernd">💪 Empowernd</button>
+      <button class="tone-chip" onclick="selectTone(this)" data-tone="provokant">🔥 Provokant</button>
+      <button class="tone-chip" onclick="selectTone(this)" data-tone="warm">🤗 Warm & nahbar</button>
+      <button class="tone-chip" onclick="selectTone(this)" data-tone="wissenschaftlich">🔬 Wissens-Posts</button>
+      <button class="tone-chip" onclick="selectTone(this)" data-tone="humor">😂 Mit Humor</button>
+      <button class="tone-chip" onclick="selectTone(this)" data-tone="emotional">💜 Emotional</button>
+    </div>
+  </div>
+
+  <!-- GENERATE -->
+  <button class="gen-btn" id="genBtn" onclick="generateContent()">
+    <span>✦</span>
+    <span>Content generieren</span>
+  </button>
+
+  <div class="error-box" id="errorBox"></div>
+
+  <!-- LOADING -->
+  <div class="loading-state" id="loadingState">
+    <div class="spinner"></div>
+    <div class="loading-text">Frau MeMu denkt nach …</div>
+  </div>
+
+  <hr class="divider" id="resultsDivider" style="display:none">
+
+  <!-- RESULTS -->
+  <div class="results-section" id="resultsSection">
+    <div class="results-header">
+      <div class="results-title">✦ Dein Content</div>
+      <button class="copy-all-btn" onclick="copyAll()">Alles kopieren</button>
+    </div>
+    <div id="contentBlocks"></div>
+
+    <div class="extras-row" id="extrasRow" style="display:none">
+      <button class="extra-chip" onclick="generateVariant()">🔄 Andere Variante</button>
+      <button class="extra-chip" onclick="generateTranslation()">🇬🇧 Englische Version</button>
+      <button class="extra-chip" onclick="generatePinterest()">📌 Pinterest-Version</button>
+      <button class="extra-chip" onclick="generateEmailSnippet()">📧 Als E-Mail-Teaser</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  let selectedFormat = 'reel';
+  let selectedTone = 'empowernd';
+  let lastTopic = '';
+  let allGeneratedContent = [];
+  let userApiKey = '';
+
+  // ── API KEY MODAL ──────────────────────────────────────────
+  function openApiModal() {
+    const modal = document.getElementById('apiModal');
+    modal.style.display = 'flex';
+    // Pre-fill if already saved
+    const saved = localStorage.getItem('fraumemu_api_key');
+    if (saved) document.getElementById('apiKeyInput').value = saved;
+  }
+
+  function closeApiModal() {
+    document.getElementById('apiModal').style.display = 'none';
+  }
+
+  function toggleVisibility() {
+    const input = document.getElementById('apiKeyInput');
+    const btn = document.getElementById('toggleBtn');
+    if (input.type === 'password') {
+      input.type = 'text';
+      btn.textContent = '🙈';
+    } else {
+      input.type = 'password';
+      btn.textContent = '👁️';
+    }
+  }
+
+  function saveApiKey() {
+    const key = document.getElementById('apiKeyInput').value.trim();
+    const errBox = document.getElementById('modalError');
+    if (!key || !key.startsWith('sk-ant-')) {
+      errBox.textContent = 'Bitte gib einen gültigen Anthropic API Key ein (beginnt mit sk-ant-).';
+      errBox.classList.add('show');
+      return;
+    }
+    errBox.classList.remove('show');
+    userApiKey = key;
+    localStorage.setItem('fraumemu_api_key', key);
+    updateApiStatus(true);
+    closeApiModal();
+  }
+
+  function updateApiStatus(connected) {
+    const dot = document.getElementById('apiDot');
+    const text = document.getElementById('apiStatusText');
+    if (connected) {
+      dot.classList.add('connected');
+      text.textContent = 'API verbunden';
+    } else {
+      dot.classList.remove('connected');
+      text.textContent = 'API Key eingeben';
+    }
+  }
+
+  // Close modal if overlay clicked
+  document.getElementById('apiModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+      // Only close if key is already saved
+      if (userApiKey) closeApiModal();
+    }
+  });
+
+  // On load: restore saved key
+  window.addEventListener('DOMContentLoaded', function() {
+    const saved = localStorage.getItem('fraumemu_api_key');
+    if (saved) {
+      userApiKey = saved;
+      updateApiStatus(true);
+    } else {
+      // Auto-open modal on first visit
+      setTimeout(() => openApiModal(), 400);
+    }
+  });
+  // ──────────────────────────────────────────────────────────
+
+  function selectFormat(btn, format) {
+    document.querySelectorAll('.format-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedFormat = format;
+  }
+
+  function selectTone(btn) {
+    document.querySelectorAll('.tone-chip').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedTone = btn.dataset.tone;
+  }
+
+  function buildPrompt(topic, format, tone) {
+    const brandVoice = `Du bist der Content-Assistent von Frau MeMu (Meike Müller), einer deutschen Marke für Frauen 40+ rund um Menopause, Hormone, Schlaf und Wohlbefinden. Die Brand Voice ist: warm, direkt, empowernd, wie eine beste Freundin die Bescheid weiß. Nutze "du" (Kleinschreibung), sprich Frauen 40+ direkt an. Hashtags immer auf Deutsch + relevante englische. Keine Floskeln. Immer mit starkem Hook anfangen. Die Expertin heißt Meike, nennt sich Frau MeMu. Website: fraumemu.de`;
+
+    const toneGuides = {
+      empowernd: "Empowernd, motivierend, stärkend – die Frau fühlt sich nach dem Lesen stärker.",
+      provokant: "Provokant, Bild-Zeitung-Style, Tabu brechen, überraschen – aber nie gemein.",
+      warm: "Warm, nahbar, wie eine gute Freundin die zuhört und versteht.",
+      wissenschaftlich: "Faktenbasiert, erklärt einfach komplexe Hormon-Zusammenhänge, seriös aber verständlich.",
+      humor: "Mit Humor und Selbstironie, die Frauen schmunzeln lassen – Menopause mit Leichtigkeit.",
+      emotional: "Emotional, berührend, gibt das Gefühl verstanden zu werden."
+    };
+
+    const formats = {
+      reel: `Erstelle ein komplettes Reel-Skript auf Deutsch mit diesen Teilen:
+🪝 HOOK (die ersten 3 Sekunden, Stopp-Scroll-Moment, sehr provokant oder überraschend)
+🎬 SKRIPT (ca. 150-200 Wörter, gesprochen, natürlich, Punkte zum Einblenden)
+💬 CAPTION (fertige Instagram-Caption, 100-150 Wörter mit Emojis)
+📣 CTA (klarer Call-to-Action)
+#️⃣ HASHTAGS (25-30 gemischte DE/EN Tags)`,
+
+      post: `Erstelle einen kompletten Instagram-Post auf Deutsch:
+🪝 HOOK (erste Zeile, mega stark, stoppt den Scroll)
+📝 CAPTION (200-250 Wörter, Emojis, Absätze, Mehrwert, persönlich)
+❓ ENGAGEMENT-FRAGE (am Ende)
+📣 CTA (auf fraumemu.de oder Newsletter)
+#️⃣ HASHTAGS (25-30 Tags)`,
+
+      story: `Erstelle 5 Instagram Story-Slides auf Deutsch:
+Slide 1: Hook / Attention Grabber (max. 8 Wörter, große Schlagzeile)
+Slide 2: Problem benennen (kurze Sätze, max. 3 Zeilen)
+Slide 3: Überraschende Info / Aha-Moment
+Slide 4: Lösung / Tipp von Frau MeMu
+Slide 5: CTA mit Link oder Frage-Sticker
+Für jede Slide: Texte + Emoji + Hinweis auf Hintergrundfarbe (Beige/Rosé/Gold)`,
+
+      carousel: `Erstelle einen Karussell-Post auf Deutsch (6-8 Slides):
+Cover-Slide: Knalliger Titel (max. 6 Wörter)
+Slide 2-6: Jeweils ein Tipp/Fakt (Headline + 2-3 Sätze)
+Letzter Slide: CTA + @fraumemu
+Dazu: fertige Caption (150 Wörter) + Hashtags (25)`,
+
+      hashtags: `Erstelle ein kuratives Hashtag-Set von 30 Tags auf Deutsch und Englisch für das Thema.
+Gruppe 1 (Breit, 10 Tags): viele Reichweite
+Gruppe 2 (Mittel, 10 Tags): Zielgruppe Frauen 40+, Menopause
+Gruppe 3 (Nischen, 10 Tags): sehr spezifisch zum Thema
+Alle Tags mit # und erkläre kurz warum jede Gruppe wichtig ist.`,
+
+      all: `Erstelle das KOMPLETTE Content-Paket auf Deutsch:
+1. 🎬 REEL-SKRIPT (Hook + Skript + Caption + CTA)
+2. 📸 INSTAGRAM POST (Caption + Hashtags)
+3. 📖 STORY-SLIDES (5 Slides komplett)
+4. 📌 PINTEREST-PIN (Titel + Beschreibung)
+5. #️⃣ HASHTAG-SET (30 Tags, gruppiert)
+Jeweils klar getrennt mit Überschriften.`
+    };
+
+    return `${brandVoice}
+
+THEMA: ${topic}
+
+TON: ${toneGuides[tone] || toneGuides.empowernd}
+
+AUFGABE:
+${formats[format] || formats.reel}
+
+Schreibe NUR den Content, keine Erklärungen davor oder danach. Alles auf Deutsch. Produktionsreif.`;
+  }
+
+  async function generateContent() {
+    if (!userApiKey) {
+      openApiModal();
+      return;
+    }
+    const topic = document.getElementById('topicInput').value.trim();
+    if (!topic) {
+      showError('Bitte gib zuerst ein Thema ein! 💕');
+      return;
+    }
+
+    lastTopic = topic;
+    allGeneratedContent = [];
+
+    document.getElementById('genBtn').disabled = true;
+    document.getElementById('errorBox').classList.remove('show');
+    document.getElementById('loadingState').classList.add('show');
+    document.getElementById('resultsSection').classList.remove('show');
+    document.getElementById('resultsDivider').style.display = 'none';
+
+    try {
+      const prompt = buildPrompt(topic, selectedFormat, selectedTone);
+      const result = await callClaude(prompt);
+
+      document.getElementById('loadingState').classList.remove('show');
+      document.getElementById('genBtn').disabled = false;
+
+      renderResults(result, topic);
+    } catch (err) {
+      document.getElementById('loadingState').classList.remove('show');
+      document.getElementById('genBtn').disabled = false;
+      showError('Ups, da hat was nicht geklappt. Versuch es nochmal! 🙈 (' + err.message + ')');
+    }
+  }
+
+  async function callClaude(prompt) {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": userApiKey,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-5",
+        max_tokens: 1000,
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error?.message || 'API-Fehler');
+    }
+
+    const data = await response.json();
+    return data.content.filter(b => b.type === 'text').map(b => b.text).join('');
+  }
+
+  function renderResults(content, topic) {
+    const blocks = document.getElementById('contentBlocks');
+    blocks.innerHTML = '';
+    allGeneratedContent = [content];
+
+    const blockDefs = detectBlocks(content, selectedFormat);
+
+    blockDefs.forEach((block, i) => {
+      const el = document.createElement('div');
+      el.className = 'content-block';
+      el.style.animationDelay = (i * 0.1) + 's';
+      el.innerHTML = `
+        <div class="block-header">
+          <div class="block-label">${block.icon} ${block.label}</div>
+          <button class="copy-btn" onclick="copyBlock(this, ${JSON.stringify(block.text).replace(/"/g, '&quot;')})">Kopieren</button>
+        </div>
+        <div class="block-content">${escapeHtml(block.text)}</div>
+      `;
+      blocks.appendChild(el);
+    });
+
+    document.getElementById('resultsDivider').style.display = 'block';
+    document.getElementById('resultsSection').classList.add('show');
+    document.getElementById('extrasRow').style.display = 'flex';
+
+    document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function detectBlocks(content, format) {
+    // Smart splitting based on common section markers
+    const sections = [];
+    const lines = content.split('\n');
+    let currentLabel = '';
+    let currentIcon = '✦';
+    let currentText = [];
+
+    const sectionMarkers = {
+      'HOOK': { icon: '🪝', label: 'Hook' },
+      'SKRIPT': { icon: '🎬', label: 'Reel-Skript' },
+      'CAPTION': { icon: '💬', label: 'Caption' },
+      'CTA': { icon: '📣', label: 'Call-to-Action' },
+      'HASHTAG': { icon: '#️⃣', label: 'Hashtags' },
+      'STORY': { icon: '📖', label: 'Story Slides' },
+      'SLIDE': { icon: '📖', label: 'Story Slides' },
+      'POST': { icon: '📸', label: 'Instagram Post' },
+      'PINTEREST': { icon: '📌', label: 'Pinterest' },
+      'KARUSSELL': { icon: '🎠', label: 'Karussell' },
+      'COVER': { icon: '🎠', label: 'Karussell' },
+      'ENGAGEMENT': { icon: '❓', label: 'Engagement-Frage' },
+    };
+
+    function saveSection() {
+      if (currentText.join('').trim()) {
+        sections.push({
+          icon: currentIcon,
+          label: currentLabel || 'Content',
+          text: currentText.join('\n').trim()
+        });
+      }
+    }
+
+    lines.forEach(line => {
+      const upper = line.toUpperCase();
+      let matched = false;
+      for (const [key, val] of Object.entries(sectionMarkers)) {
+        if (upper.includes(key) && (line.startsWith('#') || line.startsWith('🪝') || line.startsWith('🎬') || line.startsWith('💬') || line.startsWith('📣') || line.startsWith('#️') || line.startsWith('📖') || line.startsWith('📸') || line.startsWith('📌') || line.startsWith('🎠') || line.startsWith('❓') || line.match(/^\d+\.\s/) || line.startsWith('**') || line.startsWith('## '))) {
+          saveSection();
+          currentLabel = val.label;
+          currentIcon = val.icon;
+          currentText = [];
+          matched = true;
+          break;
+        }
+      }
+      if (!matched) {
+        currentText.push(line);
+      }
+    });
+
+    saveSection();
+
+    // If no sections detected, show as one block
+    if (sections.length === 0) {
+      return [{ icon: '✦', label: 'Dein Content', text: content.trim() }];
+    }
+
+    return sections;
+  }
+
+  function escapeHtml(text) {
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  function copyBlock(btn, text) {
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = '✓ Kopiert!';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = 'Kopieren';
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+
+  function copyAll() {
+    const allText = allGeneratedContent.join('\n\n---\n\n');
+    navigator.clipboard.writeText(allText).then(() => {
+      const btn = event.target;
+      btn.textContent = '✓ Alles kopiert!';
+      setTimeout(() => { btn.textContent = 'Alles kopieren'; }, 2000);
+    });
+  }
+
+  async function generateVariant() {
+    const prompt = buildPrompt(lastTopic, selectedFormat, selectedTone) + '\n\nWICHTIG: Erstelle eine komplett andere Variante als vorher – anderer Hook, andere Struktur, andere Perspektive!';
+    document.getElementById('loadingState').classList.add('show');
+    document.getElementById('resultsSection').classList.remove('show');
+
+    try {
+      const result = await callClaude(prompt);
+      document.getElementById('loadingState').classList.remove('show');
+      renderResults(result, lastTopic);
+    } catch (err) {
+      document.getElementById('loadingState').classList.remove('show');
+      showError('Fehler: ' + err.message);
+    }
+  }
+
+  async function generatePinterest() {
+    const prompt = `Du bist Content-Assistent von Frau MeMu, Expertin für Menopause & Hormone für Frauen 40+.
+Erstelle für das Thema "${lastTopic}" einen optimierten Pinterest-Pin auf Deutsch:
+📌 TITEL (max. 100 Zeichen, Keyword-optimiert)
+📝 BESCHREIBUNG (200-300 Zeichen, Call-to-Action, Link zu fraumemu.de)
+🔑 KEYWORDS (10 relevante Suchbegriffe)
+Nur den Pin-Content, produktionsreif.`;
+
+    document.getElementById('loadingState').classList.add('show');
+    document.getElementById('resultsSection').classList.remove('show');
+
+    try {
+      const result = await callClaude(prompt);
+      document.getElementById('loadingState').classList.remove('show');
+      renderResults(result, lastTopic + ' (Pinterest)');
+    } catch (err) {
+      document.getElementById('loadingState').classList.remove('show');
+      showError('Fehler: ' + err.message);
+    }
+  }
+
+  async function generateEmailSnippet() {
+    const prompt = `Du bist Content-Assistent von Frau MeMu, Expertin für Menopause & Hormone.
+Erstelle einen E-Mail-Teaser (für Newsletter-Ankündigung des Contents) auf Deutsch zum Thema "${lastTopic}":
+📧 BETREFFZEILE (max. 50 Zeichen, neugierig machend)
+📝 VORSCHAUTEXT (max. 90 Zeichen)
+💌 E-MAIL-INTRO (3-4 Sätze, warm, persönlich von Meike)
+📣 CTA-BUTTON-TEXT (max. 5 Wörter)
+Nur den E-Mail-Content, produktionsreif.`;
+
+    document.getElementById('loadingState').classList.add('show');
+    document.getElementById('resultsSection').classList.remove('show');
+
+    try {
+      const result = await callClaude(prompt);
+      document.getElementById('loadingState').classList.remove('show');
+      renderResults(result, lastTopic + ' (E-Mail)');
+    } catch (err) {
+      document.getElementById('loadingState').classList.remove('show');
+      showError('Fehler: ' + err.message);
+    }
+  }
+
+  async function generateTranslation() {
+    const current = allGeneratedContent[0];
+    const prompt = `Translate the following German Instagram content into British English, keeping the same energy, tone, and brand voice of Frau MeMu (wellness expert for women 40+ during menopause). Keep hashtags relevant for English-speaking audience:\n\n${current}`;
+
+    document.getElementById('loadingState').classList.add('show');
+    document.getElementById('resultsSection').classList.remove('show');
+
+    try {
+      const result = await callClaude(prompt);
+      document.getElementById('loadingState').classList.remove('show');
+      renderResults(result, lastTopic + ' (English)');
+    } catch (err) {
+      document.getElementById('loadingState').classList.remove('show');
+      showError('Fehler: ' + err.message);
+    }
+  }
+
+  function showError(msg) {
+    const box = document.getElementById('errorBox');
+    box.textContent = msg;
+    box.classList.add('show');
+  }
+</script>
+</body>
+</html>
