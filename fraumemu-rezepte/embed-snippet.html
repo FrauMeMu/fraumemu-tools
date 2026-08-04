@@ -6,9 +6,9 @@
      "HTML-Element" / "Code einbetten"-Element ein (in Webador meist über
      "Element hinzufügen" -> "Erweitert" / "Code" zu finden).
   3. Kopiere den kompletten Code unten in dieses Element.
-  4. WICHTIG: Ersetze "DEIN-NETLIFY-NAME" weiter unten (2x) durch die
-     tatsächliche Netlify-Adresse deiner Seite, z. B.
-     "fraumemu-rezepte.netlify.app" (ohne https://).
+  4. WICHTIG: Ersetze "DEIN-PROJEKT-NAME" weiter unten durch die
+     tatsächliche Cloudflare-Pages-Adresse deiner Seite, z. B.
+     "fraumemu-rezepte.pages.dev".
   5. Speichern & veröffentlichen.
 
   Das Element rendert einen Button. Klick darauf öffnet ein Overlay mit der
@@ -103,7 +103,7 @@
 
 <script>
   (function () {
-    var NETLIFY_URL = 'https://DEIN-NETLIFY-NAME.netlify.app/';
+    var RECIPE_TOOL_URL = 'https://DEIN-PROJEKT-NAME.pages.dev/';
 
     var overlay = document.getElementById('mema-overlay');
     var iframe = document.getElementById('mema-iframe');
@@ -113,7 +113,7 @@
 
     function openModal() {
       if (!loaded) {
-        iframe.src = NETLIFY_URL;
+        iframe.src = RECIPE_TOOL_URL;
         loaded = true;
       }
       overlay.classList.add('open');
