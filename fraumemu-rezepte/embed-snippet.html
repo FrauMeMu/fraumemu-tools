@@ -1,0 +1,137 @@
+<!--
+  Einbau-Anleitung für Webador:
+
+  1. Gehe auf die Seite "Meine Angebote für dich" im Webador-Editor.
+  2. Füge an der Stelle, wo der orangene Button erscheinen soll, ein
+     "HTML-Element" / "Code einbetten"-Element ein (in Webador meist über
+     "Element hinzufügen" -> "Erweitert" / "Code" zu finden).
+  3. Kopiere den kompletten Code unten in dieses Element.
+  4. WICHTIG: Ersetze "DEIN-NETLIFY-NAME" weiter unten (2x) durch die
+     tatsächliche Netlify-Adresse deiner Seite, z. B.
+     "fraumemu-rezepte.netlify.app" (ohne https://).
+  5. Speichern & veröffentlichen.
+
+  Das Element rendert einen Button. Klick darauf öffnet ein Overlay mit der
+  Rezeptsuche als iframe -- die Kundin verlässt fraumemu.de dabei nicht.
+-->
+
+<div id="mema-launcher">
+  <button id="mema-open-btn" type="button">
+    Rezept mit Mema finden
+    <span aria-hidden="true">→</span>
+  </button>
+</div>
+
+<div id="mema-overlay" role="dialog" aria-modal="true" aria-label="Mema Rezeptfinder">
+  <div id="mema-modal">
+    <button id="mema-close-btn" type="button" aria-label="Schließen">✕</button>
+    <iframe id="mema-iframe" title="Mema Rezeptfinder" loading="lazy"></iframe>
+  </div>
+</div>
+
+<style>
+  #mema-open-btn {
+    background: linear-gradient(135deg, #B87878, #C97C6A);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 16px 28px;
+    font-family: 'DM Sans', Arial, sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(184,120,120,0.35);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  #mema-open-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(184,120,120,0.45);
+  }
+
+  #mema-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(58,45,37,0.6);
+    z-index: 99999;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  #mema-overlay.open { display: flex; }
+
+  #mema-modal {
+    position: relative;
+    background: #F5EFE6;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 800px;
+    height: min(90vh, 850px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    overflow: hidden;
+  }
+
+  #mema-close-btn {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    z-index: 2;
+    background: rgba(255,255,255,0.85);
+    border: none;
+    border-radius: 50%;
+    width: 34px;
+    height: 34px;
+    font-size: 1rem;
+    cursor: pointer;
+    color: #3A2D25;
+  }
+
+  #mema-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  @media (max-width: 600px) {
+    #mema-modal { height: 100vh; border-radius: 0; max-width: 100%; }
+    #mema-overlay { padding: 0; }
+  }
+</style>
+
+<script>
+  (function () {
+    var NETLIFY_URL = 'https://DEIN-NETLIFY-NAME.netlify.app/';
+
+    var overlay = document.getElementById('mema-overlay');
+    var iframe = document.getElementById('mema-iframe');
+    var openBtn = document.getElementById('mema-open-btn');
+    var closeBtn = document.getElementById('mema-close-btn');
+    var loaded = false;
+
+    function openModal() {
+      if (!loaded) {
+        iframe.src = NETLIFY_URL;
+        loaded = true;
+      }
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      overlay.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    openBtn.addEventListener('click', openModal);
+    closeBtn.addEventListener('click', closeModal);
+    overlay.addEventListener('click', function (e) {
+      if (e.target === overlay) closeModal();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeModal();
+    });
+  })();
+</script>

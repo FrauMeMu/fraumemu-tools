@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mema findet's zuckerarm</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --beige: #F5EFE6;
+    --beige-dark: #EDE3D4;
+    --rose: #D4A5A5;
+    --rose-deep: #B87878;
+    --gold: #C9A84C;
+    --gold-light: #E8D5A3;
+    --brown: #6B4C3B;
+    --text: #3A2D25;
+    --text-light: #7A6558;
+    --white: #FDFAF6;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    font-family: 'DM Sans', sans-serif;
+    background: var(--beige);
+    color: var(--text);
+  }
+
+  .wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 32px 20px 60px;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  header .crown { font-size: 1.6rem; margin-bottom: 4px; }
+
+  header h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: 2.2rem;
+    color: var(--brown);
+  }
+
+  header h1 em {
+    font-style: italic;
+    color: var(--rose-deep);
+    font-weight: 400;
+  }
+
+  header p {
+    color: var(--text-light);
+    font-size: 0.9rem;
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+
+  header p strong { color: var(--brown); }
+
+  .card {
+    background: var(--white);
+    border-radius: 18px;
+    padding: 24px;
+    border: 1px solid var(--beige-dark);
+    box-shadow: 0 4px 20px rgba(107,76,59,0.08);
+    margin-bottom: 20px;
+  }
+
+  .search-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  #keywordInput {
+    flex: 1 1 220px;
+    border: 1.5px solid var(--beige-dark);
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.98rem;
+    background: var(--beige);
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  #keywordInput:focus {
+    border-color: var(--rose-deep);
+    background: var(--white);
+  }
+
+  #searchBtn {
+    background: linear-gradient(135deg, var(--brown), #8B5E4A);
+    color: var(--gold-light);
+    border: none;
+    border-radius: 10px;
+    padding: 14px 26px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  #searchBtn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(107,76,59,0.3);
+  }
+
+  #searchBtn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .hint {
+    font-size: 0.78rem;
+    color: var(--text-light);
+    margin-top: 10px;
+  }
+
+  .state-box {
+    text-align: center;
+    padding: 40px 20px;
+    display: none;
+  }
+
+  .state-box.show { display: block; }
+
+  .spinner {
+    width: 38px;
+    height: 38px;
+    border: 3px solid var(--beige-dark);
+    border-top-color: var(--rose-deep);
+    border-radius: 50%;
+    animation: spin 0.9s linear infinite;
+    margin: 0 auto 14px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .state-box .msg {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.05rem;
+    color: var(--text-light);
+  }
+
+  .error-box {
+    background: #fff0f0;
+    border: 1.5px solid var(--rose);
+    border-radius: 12px;
+    padding: 18px 20px;
+    color: var(--rose-deep);
+    font-size: 0.9rem;
+    display: none;
+    margin-bottom: 20px;
+  }
+
+  .error-box.show { display: block; }
+
+  #results { display: none; }
+  #results.show { display: block; }
+
+  .results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .results-header h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    color: var(--brown);
+    font-weight: 600;
+  }
+
+  .print-btn {
+    background: var(--gold);
+    color: var(--white);
+    border: none;
+    border-radius: 8px;
+    padding: 9px 16px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .print-btn:hover { background: #b8923e; }
+
+  .recipe {
+    background: var(--white);
+    border-radius: 16px;
+    border: 1px solid var(--beige-dark);
+    margin-bottom: 18px;
+    overflow: hidden;
+  }
+
+  .recipe-head {
+    background: linear-gradient(135deg, var(--beige-dark), var(--beige));
+    padding: 16px 20px;
+  }
+
+  .recipe-head h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.25rem;
+    color: var(--brown);
+    font-weight: 600;
+  }
+
+  .recipe-head .source {
+    font-size: 0.76rem;
+    color: var(--text-light);
+    margin-top: 4px;
+  }
+
+  .recipe-head .source a { color: var(--rose-deep); text-decoration: none; }
+  .recipe-head .source a:hover { text-decoration: underline; }
+
+  .recipe-body { padding: 18px 20px; }
+
+  .nutrients {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .nutrient {
+    background: var(--beige);
+    border-radius: 8px;
+    padding: 8px 6px;
+    text-align: center;
+  }
+
+  .nutrient .val {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--brown);
+  }
+
+  .nutrient.sugar .val { color: var(--rose-deep); }
+
+  .nutrient .lbl {
+    font-size: 0.65rem;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .recipe-section { margin-bottom: 12px; }
+
+  .recipe-section h4 {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-light);
+    margin-bottom: 6px;
+  }
+
+  .recipe-section ul {
+    padding-left: 18px;
+    font-size: 0.88rem;
+    line-height: 1.6;
+  }
+
+  .recipe-section p {
+    font-size: 0.88rem;
+    line-height: 1.65;
+    white-space: pre-wrap;
+  }
+
+  .servings {
+    font-size: 0.78rem;
+    color: var(--text-light);
+    margin-top: 4px;
+  }
+
+  .footer-note {
+    text-align: center;
+    font-size: 0.76rem;
+    color: var(--text-light);
+    margin-top: 12px;
+    line-height: 1.5;
+  }
+
+  @media print {
+    body { background: white; }
+    .card:first-of-type, .print-btn, .hint, .footer-note, #closeBtn { display: none !important; }
+    .recipe { break-inside: avoid; box-shadow: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="crown">💛</div>
+    <h1>Mema <em>findet's zuckerarm</em></h1>
+    <p>Sag mir, worauf du Appetit hast. Ich suche im Internet<br><strong>5 Rezepte mit höchstens 3 g Gesamtzucker pro Portion</strong> für dich.</p>
+  </header>
+
+  <div class="card">
+    <div class="search-row">
+      <input type="text" id="keywordInput" placeholder="z. B. Hähnchen, Kürbissuppe, Frühstück, Schokokuchen …" maxlength="120" autocomplete="off" />
+      <button id="searchBtn" onclick="searchRecipes()">✦ Rezepte finden</button>
+    </div>
+    <div class="hint">Mema durchsucht dafür live das Internet — das kann 15–30 Sekunden dauern.</div>
+  </div>
+
+  <div class="error-box" id="errorBox"></div>
+
+  <div class="state-box" id="loadingState">
+    <div class="spinner"></div>
+    <div class="msg">Mema stöbert im Internet nach zuckerarmen Rezepten …</div>
+  </div>
+
+  <div id="results">
+    <div class="results-header">
+      <h2>✦ Deine Rezepte</h2>
+      <button class="print-btn" onclick="window.print()">🖨️ Drucken</button>
+    </div>
+    <div id="recipeList"></div>
+    <div class="footer-note">Nährwertangaben sind Schätzungen der jeweiligen Quelle und können abweichen. Bei Unsicherheiten bitte im Originalrezept nachlesen.</div>
+  </div>
+</div>
+
+<script>
+  const FUNCTION_URL = '/.netlify/functions/find-recipes';
+
+  document.getElementById('keywordInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') searchRecipes();
+  });
+
+  function escapeHtml(text) {
+    return String(text)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  function showError(msg) {
+    const box = document.getElementById('errorBox');
+    box.textContent = msg;
+    box.classList.add('show');
+  }
+
+  function clearError() {
+    document.getElementById('errorBox').classList.remove('show');
+  }
+
+  async function searchRecipes() {
+    const keyword = document.getElementById('keywordInput').value.trim();
+    if (!keyword) {
+      showError('Bitte gib zuerst ein Stichwort ein. 💕');
+      return;
+    }
+
+    clearError();
+    document.getElementById('searchBtn').disabled = true;
+    document.getElementById('loadingState').classList.add('show');
+    document.getElementById('results').classList.remove('show');
+
+    try {
+      const res = await fetch(FUNCTION_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ keyword })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Etwas ist schiefgelaufen.');
+      }
+
+      renderRecipes(data.recipes || []);
+    } catch (err) {
+      showError('Ups, das hat leider nicht geklappt: ' + err.message + ' Versuch es gern nochmal.');
+    } finally {
+      document.getElementById('searchBtn').disabled = false;
+      document.getElementById('loadingState').classList.remove('show');
+    }
+  }
+
+  function renderRecipes(recipes) {
+    const list = document.getElementById('recipeList');
+    list.innerHTML = '';
+
+    if (!recipes.length) {
+      showError('Mema konnte leider keine passenden Rezepte finden. Versuch es mit einem anderen Stichwort.');
+      return;
+    }
+
+    recipes.forEach(r => {
+      const n = r.naehrwerte_pro_portion || {};
+      const el = document.createElement('div');
+      el.className = 'recipe';
+      el.innerHTML = `
+        <div class="recipe-head">
+          <h3>${escapeHtml(r.titel || 'Rezept')}</h3>
+          ${r.quelle_url ? `<div class="source">Quelle: <a href="${escapeHtml(r.quelle_url)}" target="_blank" rel="noopener">${escapeHtml(r.quelle_name || r.quelle_url)}</a></div>` : ''}
+        </div>
+        <div class="recipe-body">
+          <div class="nutrients">
+            <div class="nutrient"><div class="val">${escapeHtml(n.kalorien ?? '–')}</div><div class="lbl">kcal</div></div>
+            <div class="nutrient"><div class="val">${escapeHtml(n.kohlenhydrate ?? '–')}</div><div class="lbl">Kohlenhydrate</div></div>
+            <div class="nutrient sugar"><div class="val">${escapeHtml(n.zucker ?? '–')}</div><div class="lbl">davon Zucker</div></div>
+            <div class="nutrient"><div class="val">${escapeHtml(n.eiweiss ?? '–')}</div><div class="lbl">Eiweiß</div></div>
+            <div class="nutrient"><div class="val">${escapeHtml(n.fett ?? '–')}</div><div class="lbl">Fett</div></div>
+            <div class="nutrient"><div class="val">${escapeHtml(n.ballaststoffe ?? '–')}</div><div class="lbl">Ballaststoffe</div></div>
+          </div>
+          ${r.portionen ? `<div class="servings">Für ${escapeHtml(r.portionen)} Portion(en)</div>` : ''}
+          <div class="recipe-section">
+            <h4>Zutaten</h4>
+            <ul>${(r.zutaten || []).map(z => `<li>${escapeHtml(z)}</li>`).join('')}</ul>
+          </div>
+          <div class="recipe-section">
+            <h4>Zubereitung</h4>
+            <p>${escapeHtml(r.zubereitung || '')}</p>
+          </div>
+        </div>
+      `;
+      list.appendChild(el);
+    });
+
+    document.getElementById('results').classList.add('show');
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+</script>
+</body>
+</html>
