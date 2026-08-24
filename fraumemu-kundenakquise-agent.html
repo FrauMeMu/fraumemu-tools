@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frau MeMu · Kundenakquise Agent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --beige: #F5EFE6;
+    --beige-dark: #EDE3D4;
+    --rose: #D4A5A5;
+    --rose-deep: #B87878;
+    --gold: #C9A84C;
+    --gold-light: #E8D5A3;
+    --green: #8A9E7A;
+    --brown: #6B4C3B;
+    --text: #3A2D25;
+    --text-light: #7A6558;
+    --white: #FDFAF6;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--beige);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* API KEY MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(58,45,37,0.55);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .modal-box {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 36px 32px;
+    max-width: 480px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(58,45,37,0.35);
+    animation: slideUp 0.35s ease;
+    position: relative;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .modal-crown {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 8px;
+  }
+
+  .modal-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.7rem;
+    font-weight: 600;
+    color: var(--brown);
+    text-align: center;
+    margin-bottom: 6px;
+  }
+
+  .modal-subtitle {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    text-align: center;
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+
+  .modal-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--brown);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .api-input-wrap {
+    position: relative;
+    margin-bottom: 10px;
+  }
+
+  .api-input {
+    width: 100%;
+    border: 1.5px solid var(--beige-dark);
+    border-radius: 10px;
+    padding: 13px 44px 13px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    color: var(--text);
+    background: var(--beige);
+    outline: none;
+    transition: border-color 0.2s;
+    letter-spacing: 0.04em;
+  }
+
+  .api-input:focus {
+    border-color: var(--rose-deep);
+    background: var(--white);
+  }
+
+  .toggle-vis {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    color: var(--text-light);
+    padding: 4px;
+  }
+
+  .api-hint {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+
+  .api-hint a {
+    color: var(--rose-deep);
+    text-decoration: none;
+  }
+
+  .api-hint a:hover { text-decoration: underline; }
+
+  .modal-save-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--brown), #8B5E4A);
+    color: var(--gold-light);
+    border: none;
+    border-radius: 10px;
+    padding: 14px 24px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.04em;
+  }
+
+  .modal-save-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(107,76,59,0.3);
+  }
+
+  .modal-error {
+    background: #fff0f0;
+    border: 1px solid var(--rose);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.8rem;
+    color: var(--rose-deep);
+    margin-bottom: 14px;
+    display: none;
+  }
+
+  .modal-error.show { display: block; }
+
+  /* API KEY STATUS IN HEADER */
+  .api-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1px solid rgba(232,213,163,0.3);
+    transition: all 0.2s;
+  }
+
+  .api-status:hover { background: rgba(255,255,255,0.1); }
+
+  .api-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #e57373;
+    flex-shrink: 0;
+  }
+
+  .api-dot.connected { background: #81c784; }
+
+  .api-status-text {
+    font-size: 0.72rem;
+    color: var(--gold-light);
+    letter-spacing: 0.06em;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--brown);
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 20px rgba(58,45,37,0.3);
+  }
+
+  .logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    letter-spacing: 0.08em;
+  }
+
+  .logo span {
+    color: var(--rose);
+    font-style: italic;
+  }
+
+  .badge {
+    background: var(--gold);
+    color: var(--brown);
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 20px;
+  }
+
+  /* MAIN LAYOUT */
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* HERO SECTION */
+  .hero {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.8rem;
+    font-weight: 300;
+    color: var(--brown);
+    line-height: 1.2;
+    margin-bottom: 12px;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--rose-deep);
+  }
+
+  .hero p {
+    color: var(--text-light);
+    font-size: 0.95rem;
+    font-weight: 300;
+    max-width: 560px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* STEP CARD */
+  .card {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 28px 32px;
+    margin-bottom: 24px;
+    border: 1px solid var(--beige-dark);
+    box-shadow: 0 2px 16px rgba(107,76,59,0.06);
+  }
+
+  .card-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--brown);
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .card-hint {
+    font-size: 0.78rem;
+    color: var(--text-light);
+    margin-top: -10px;
+    margin-bottom: 16px;
+  }
+
+  .step-num {
+    background: var(--gold);
+    color: var(--white);
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+
+  /* FIELDS */
+  .field-label {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--brown);
+    letter-spacing: 0.03em;
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .field-group { margin-bottom: 18px; }
+  .field-group:last-child { margin-bottom: 0; }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+
+  .topic-input, .field-input {
+    width: 100%;
+    border: 1.5px solid var(--beige-dark);
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    color: var(--text);
+    background: var(--beige);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .topic-input { resize: vertical; min-height: 80px; }
+
+  .topic-input:focus, .field-input:focus {
+    border-color: var(--rose-deep);
+    background: var(--white);
+  }
+
+  .topic-input::placeholder, .field-input::placeholder { color: var(--text-light); }
+
+  /* TONE / CHIP ROW (reused for lead count) */
+  .tone-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .tone-chip {
+    border: 1.5px solid var(--beige-dark);
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--beige);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .tone-chip:hover { border-color: var(--rose); }
+  .tone-chip.active {
+    background: var(--rose-deep);
+    color: var(--white);
+    border-color: var(--rose-deep);
+  }
+
+  /* GENERATE BUTTON */
+  .gen-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--brown), #8B5E4A);
+    color: var(--gold-light);
+    border: none;
+    border-radius: 12px;
+    padding: 18px 32px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.25s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .gen-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(107,76,59,0.35);
+  }
+
+  .gen-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* LOADING */
+  .loading-state {
+    text-align: center;
+    padding: 40px 0;
+    display: none;
+  }
+
+  .loading-state.show { display: block; }
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--beige-dark);
+    border-top-color: var(--rose-deep);
+    border-radius: 50%;
+    animation: spin 0.9s linear infinite;
+    margin: 0 auto 16px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-style: italic;
+    color: var(--text-light);
+  }
+
+  .loading-subtext {
+    font-size: 0.78rem;
+    color: var(--text-light);
+    margin-top: 8px;
+  }
+
+  /* RESULTS */
+  .results-section { display: none; }
+  .results-section.show { display: block; }
+
+  .results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .results-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem;
+    font-weight: 400;
+    color: var(--brown);
+  }
+
+  .leads-toolbar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .copy-all-btn {
+    background: var(--gold);
+    color: var(--white);
+    border: none;
+    border-radius: 8px;
+    padding: 8px 18px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .copy-all-btn:hover { background: #b8923e; }
+
+  .csv-btn {
+    background: var(--green);
+  }
+
+  .csv-btn:hover { background: #75885f; }
+
+  /* LEAD CARDS */
+  .lead-card {
+    background: var(--white);
+    border-radius: 14px;
+    margin-bottom: 18px;
+    border: 1px solid var(--beige-dark);
+    overflow: hidden;
+    animation: fadeUp 0.4s ease forwards;
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .lead-header {
+    background: linear-gradient(135deg, var(--beige-dark), var(--beige));
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--beige-dark);
+    gap: 10px;
+  }
+
+  .lead-label {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--brown);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .copy-btn {
+    background: none;
+    border: 1.5px solid var(--beige-dark);
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 0.75rem;
+    color: var(--text-light);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+    white-space: nowrap;
+  }
+
+  .copy-btn:hover {
+    border-color: var(--rose);
+    color: var(--rose-deep);
+    background: #fff8f8;
+  }
+
+  .copy-btn.copied {
+    border-color: var(--green);
+    color: var(--green);
+    background: #f0f7ee;
+  }
+
+  .lead-fields {
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    row-gap: 9px;
+    column-gap: 14px;
+    padding: 18px 24px;
+    font-size: 0.88rem;
+  }
+
+  .lead-fields dt { color: var(--text-light); font-weight: 500; }
+  .lead-fields dd { color: var(--text); margin: 0; word-break: break-word; }
+  .lead-fields dd.missing { color: var(--text-light); font-style: italic; }
+  .lead-fields a { color: var(--rose-deep); text-decoration: none; }
+  .lead-fields a:hover { text-decoration: underline; }
+
+  .lead-footer {
+    padding: 12px 24px 18px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    border-top: 1px dashed var(--beige-dark);
+  }
+
+  .draft-btn {
+    background: var(--beige);
+    border: 1.5px dashed var(--gold);
+    border-radius: 8px;
+    padding: 7px 16px;
+    font-size: 0.78rem;
+    color: var(--text-light);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .draft-btn:hover {
+    background: var(--gold-light);
+    border-style: solid;
+    color: var(--brown);
+  }
+
+  .email-draft {
+    margin: 0 24px 20px;
+    background: var(--beige);
+    border-radius: 10px;
+    padding: 16px 18px;
+    font-size: 0.85rem;
+    line-height: 1.65;
+    white-space: pre-wrap;
+    display: none;
+    color: var(--text);
+  }
+
+  .email-draft.show { display: block; }
+
+  /* EXTRAS */
+  .extras-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+  }
+
+  .extra-chip {
+    background: var(--beige);
+    border: 1.5px dashed var(--gold);
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-size: 0.82rem;
+    color: var(--text-light);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .extra-chip:hover {
+    background: var(--gold-light);
+    border-style: solid;
+    color: var(--brown);
+  }
+
+  .extra-chip:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* COMPLIANCE NOTE */
+  .compliance-box {
+    background: #fff8ee;
+    border: 1.5px dashed var(--gold);
+    border-radius: 12px;
+    padding: 16px 20px;
+    font-size: 0.8rem;
+    color: var(--text-light);
+    line-height: 1.6;
+    margin-top: 24px;
+  }
+
+  .compliance-box strong { color: var(--brown); }
+
+  /* RAW FALLBACK */
+  .raw-fallback {
+    background: var(--white);
+    border: 1px solid var(--beige-dark);
+    border-radius: 12px;
+    padding: 18px 22px;
+    font-size: 0.85rem;
+    white-space: pre-wrap;
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* ERROR */
+  .error-box {
+    background: #fff0f0;
+    border: 1.5px solid var(--rose);
+    border-radius: 10px;
+    padding: 16px 20px;
+    color: var(--rose-deep);
+    font-size: 0.88rem;
+    display: none;
+    margin-top: 16px;
+  }
+
+  .error-box.show { display: block; }
+
+  /* DIVIDER */
+  .divider {
+    border: none;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-light), transparent);
+    margin: 32px 0;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .field-row { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 2rem; }
+    header { padding: 14px 18px; }
+    .card { padding: 20px 18px; }
+    .lead-fields { grid-template-columns: 100px 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Frau Me<span>Mu</span></div>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <div class="api-status" onclick="openApiModal()" title="API Key verwalten">
+      <div class="api-dot" id="apiDot"></div>
+      <span class="api-status-text" id="apiStatusText">API Key eingeben</span>
+    </div>
+    <div class="badge">✦ Kundenakquise Agent</div>
+  </div>
+</header>
+
+<!-- API KEY MODAL -->
+<div class="modal-overlay" id="apiModal">
+  <div class="modal-box">
+    <div class="modal-crown">👑</div>
+    <div class="modal-title">API Key eingeben</div>
+    <div class="modal-subtitle">Damit dein Kundenakquise Agent live im Web recherchieren kann,<br>brauchst du einen Anthropic API Key.</div>
+    <label class="modal-label">Dein Anthropic API Key</label>
+    <div class="api-input-wrap">
+      <input class="api-input" type="password" id="apiKeyInput" placeholder="sk-ant-api03-..." autocomplete="off" />
+      <button class="toggle-vis" onclick="toggleVisibility()" id="toggleBtn" title="Anzeigen/Verstecken">👁️</button>
+    </div>
+    <div class="modal-error" id="modalError"></div>
+    <div class="api-hint">
+      Deinen Key findest du unter <a href="https://console.anthropic.com/account/keys" target="_blank">console.anthropic.com</a>.<br>
+      Er wird nur lokal in deinem Browser gespeichert – nirgendwo hochgeladen. 🔒<br>
+      (Derselbe Key wie im Content Agent – du musst ihn nur einmal eingeben.)
+    </div>
+    <button class="modal-save-btn" onclick="saveApiKey()">✦ Speichern & loslegen</button>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="hero">
+    <h1>Dein persönlicher<br><em>Kundenakquise-Assistent</em></h1>
+    <p>Recherchiert live im Web nach passenden Geschäftskunden für dein Business – mit Ansprechpartner, Telefon und E-Mail, sofern öffentlich auffindbar.</p>
+  </div>
+
+  <!-- STEP 1: OFFER -->
+  <div class="card">
+    <div class="card-title">
+      <div class="step-num">1</div>
+      Dein Angebot
+    </div>
+    <textarea class="topic-input" id="offerInput" placeholder="z.B. Coaching-Programme und Vorträge rund um Menopause & Hormongesundheit, auch für Unternehmen im Rahmen des betrieblichen Gesundheitsmanagements"></textarea>
+  </div>
+
+  <!-- STEP 2: TARGET CUSTOMER -->
+  <div class="card">
+    <div class="card-title">
+      <div class="step-num">2</div>
+      Dein Wunschkunde
+    </div>
+    <div class="field-group">
+      <label class="field-label">Branche / Zielgruppe</label>
+      <textarea class="topic-input" id="targetInput" placeholder="z.B. HR-Abteilungen mittelständischer Unternehmen, Yogastudios & Wellness-Praxen, Frauenärztinnen, Coaching-Kolleginnen für Kooperationen ..."></textarea>
+    </div>
+    <div class="field-row">
+      <div class="field-group">
+        <label class="field-label">Region</label>
+        <input class="field-input" type="text" id="regionInput" placeholder="z.B. Berlin, Deutschland bundesweit, DACH-Region ..." />
+      </div>
+      <div class="field-group">
+        <label class="field-label">Weitere Kriterien (optional)</label>
+        <input class="field-input" type="text" id="criteriaInput" placeholder="z.B. nur Unternehmen ab 50 Mitarbeitenden" />
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: LEAD COUNT -->
+  <div class="card">
+    <div class="card-title">
+      <div class="step-num">3</div>
+      Wie viele Leads?
+    </div>
+    <div class="tone-row">
+      <button class="tone-chip" onclick="selectCount(this, 5)" data-count="5">5 Leads</button>
+      <button class="tone-chip active" onclick="selectCount(this, 10)" data-count="10">10 Leads</button>
+      <button class="tone-chip" onclick="selectCount(this, 15)" data-count="15">15 Leads</button>
+      <button class="tone-chip" onclick="selectCount(this, 20)" data-count="20">20 Leads</button>
+    </div>
+  </div>
+
+  <!-- GENERATE -->
+  <button class="gen-btn" id="genBtn" onclick="searchLeads()">
+    <span>✦</span>
+    <span>Leads recherchieren</span>
+  </button>
+
+  <div class="error-box" id="errorBox"></div>
+
+  <!-- LOADING -->
+  <div class="loading-state" id="loadingState">
+    <div class="spinner"></div>
+    <div class="loading-text">Frau MeMu durchsucht das Web …</div>
+    <div class="loading-subtext">Das kann bis zu ein bis zwei Minuten dauern – die KI recherchiert live.</div>
+  </div>
+
+  <hr class="divider" id="resultsDivider" style="display:none">
+
+  <!-- RESULTS -->
+  <div class="results-section" id="resultsSection">
+    <div class="results-header">
+      <div class="results-title" id="resultsTitle">✦ Deine Leads</div>
+      <div class="leads-toolbar">
+        <button class="copy-all-btn" onclick="copyAllLeads(this)">Alle kopieren</button>
+        <button class="copy-all-btn csv-btn" onclick="exportCsv()">Als CSV exportieren</button>
+      </div>
+    </div>
+    <div id="leadsContainer"></div>
+
+    <div class="extras-row">
+      <button class="extra-chip" id="moreBtn" onclick="loadMoreLeads()">🔎 Weitere Leads finden</button>
+    </div>
+
+    <div class="compliance-box">
+      <strong>Bitte beachten:</strong> Diese Liste ist eine Recherche-Hilfe, keine geprüfte Kontaktdatenbank. Prüfe die Angaben (Quelle-Link) vor der Nutzung. Für Kaltakquise per E-Mail oder Telefon gelten in Deutschland strenge Regeln (DSGVO, UWG) – informiere dich vorher über die Zulässigkeit der Kontaktaufnahme, insbesondere bei personenbezogenen Daten.
+    </div>
+  </div>
+
+</div>
+
+<script>
+  let selectedCount = 10;
+  let userApiKey = '';
+  let currentLeads = [];
+  let lastOffer = '', lastTarget = '', lastRegion = '', lastCriteria = '';
+
+  // ── API KEY MODAL ──────────────────────────────────────────
+  function openApiModal() {
+    const modal = document.getElementById('apiModal');
+    modal.style.display = 'flex';
+    const saved = localStorage.getItem('fraumemu_api_key');
+    if (saved) document.getElementById('apiKeyInput').value = saved;
+  }
+
+  function closeApiModal() {
+    document.getElementById('apiModal').style.display = 'none';
+  }
+
+  function toggleVisibility() {
+    const input = document.getElementById('apiKeyInput');
+    const btn = document.getElementById('toggleBtn');
+    if (input.type === 'password') {
+      input.type = 'text';
+      btn.textContent = '🙈';
+    } else {
+      input.type = 'password';
+      btn.textContent = '👁️';
+    }
+  }
+
+  function saveApiKey() {
+    const key = document.getElementById('apiKeyInput').value.trim();
+    const errBox = document.getElementById('modalError');
+    if (!key || !key.startsWith('sk-ant-')) {
+      errBox.textContent = 'Bitte gib einen gültigen Anthropic API Key ein (beginnt mit sk-ant-).';
+      errBox.classList.add('show');
+      return;
+    }
+    errBox.classList.remove('show');
+    userApiKey = key;
+    localStorage.setItem('fraumemu_api_key', key);
+    updateApiStatus(true);
+    closeApiModal();
+  }
+
+  function updateApiStatus(connected) {
+    const dot = document.getElementById('apiDot');
+    const text = document.getElementById('apiStatusText');
+    if (connected) {
+      dot.classList.add('connected');
+      text.textContent = 'API verbunden';
+    } else {
+      dot.classList.remove('connected');
+      text.textContent = 'API Key eingeben';
+    }
+  }
+
+  document.getElementById('apiModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+      if (userApiKey) closeApiModal();
+    }
+  });
+
+  window.addEventListener('DOMContentLoaded', function() {
+    const saved = localStorage.getItem('fraumemu_api_key');
+    if (saved) {
+      userApiKey = saved;
+      updateApiStatus(true);
+    } else {
+      setTimeout(() => openApiModal(), 400);
+    }
+  });
+  // ──────────────────────────────────────────────────────────
+
+  function selectCount(btn, count) {
+    document.querySelectorAll('.tone-chip').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedCount = count;
+  }
+
+  function buildSystemPrompt(offer) {
+    return `Du bist ein sorgfältiger B2B-Recherche-Assistent für Kundenakquise. Du recherchierst im Web nach potenziellen Geschäftskunden (Leads) für folgendes Angebot: "${offer}".
+
+WICHTIGE REGELN:
+- Erfinde NIEMALS Kontaktdaten. Nutze ausschließlich Informationen, die du über die Websuche tatsächlich gefunden hast (Firmenwebsite, Impressum, öffentliches Branchenverzeichnis, Unternehmensprofile o.ä.).
+- Wenn eine Information (Ansprechpartner, Telefon oder E-Mail) nicht sicher und öffentlich auffindbar ist, trage exakt "nicht gefunden" ein statt zu raten oder zu schätzen.
+- Bevorzuge allgemein zugängliche Geschäftskontakte (Impressum, info@-Adressen, Zentrale) vor privaten Kontaktdaten einzelner Personen.
+- Gib zu jedem Lead die Quelle (URL) an, über die du die Angaben gefunden hast, damit sie überprüft werden können.
+- Schlage nur reale, aktuell existierende Unternehmen bzw. Fachpersonen vor, keine Beispiele oder Platzhalter.
+- Antworte AUSSCHLIESSLICH mit einem JSON-Array, keine Einleitung, keine Erklärung, kein Markdown-Codeblock, kein Text davor oder danach.`;
+  }
+
+  function buildUserPrompt(offer, target, region, criteria, count, excludeList) {
+    let prompt = `MEIN ANGEBOT: ${offer}\n\nZIELKUNDE / BRANCHE: ${target}\nREGION: ${region}\nWEITERE KRITERIEN: ${criteria || 'keine'}`;
+    if (excludeList && excludeList.length) {
+      prompt += `\nBEREITS GEFUNDENE UNTERNEHMEN (bitte NICHT erneut vorschlagen): ${excludeList.join(', ')}`;
+    }
+    prompt += `\n\nRecherchiere ${count} passende, reale Unternehmen bzw. Fachpersonen als potenzielle Kunden. Gib das Ergebnis als JSON-Array zurück, jedes Element in exakt diesem Format:
+{
+  "firma": "Name des Unternehmens / der Person",
+  "ansprechpartner": "Name der Kontaktperson oder 'nicht gefunden'",
+  "telefon": "Telefonnummer oder 'nicht gefunden'",
+  "email": "E-Mail-Adresse oder 'nicht gefunden'",
+  "website": "URL der Website",
+  "adresse": "Ort / Adresse oder 'nicht gefunden'",
+  "begruendung": "1 Satz: warum passt dieser Lead zum Angebot",
+  "quelle": "URL der Quelle für die Angaben"
+}`;
+    return prompt;
+  }
+
+  async function callClaudeSearch(system, userPrompt, maxUses) {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": userApiKey,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+      body: JSON.stringify({
+        model: "claude-opus-5",
+        max_tokens: 16000,
+        system: system,
+        messages: [{ role: "user", content: userPrompt }],
+        tools: [{ type: "web_search_20260209", name: "web_search", max_uses: maxUses }]
+      })
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error?.message || ('API-Fehler (' + response.status + ')'));
+    }
+
+    const data = await response.json();
+    return data.content.filter(b => b.type === 'text').map(b => b.text).join('');
+  }
+
+  async function callClaudePlain(prompt) {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": userApiKey,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+      body: JSON.stringify({
+        model: "claude-opus-5",
+        max_tokens: 1000,
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error?.message || ('API-Fehler (' + response.status + ')'));
+    }
+
+    const data = await response.json();
+    return data.content.filter(b => b.type === 'text').map(b => b.text).join('');
+  }
+
+  function parseLeads(text) {
+    let cleaned = text.trim();
+    cleaned = cleaned.replace(/^```(?:json)?/i, '').replace(/```$/, '').trim();
+    const start = cleaned.indexOf('[');
+    const end = cleaned.lastIndexOf(']');
+    if (start === -1 || end === -1 || end < start) {
+      throw new Error('Kein JSON-Array in der Antwort gefunden.');
+    }
+    const jsonSlice = cleaned.slice(start, end + 1);
+    const parsed = JSON.parse(jsonSlice);
+    if (!Array.isArray(parsed)) throw new Error('Antwort ist kein Array.');
+    return parsed;
+  }
+
+  async function searchLeads() {
+    if (!userApiKey) {
+      openApiModal();
+      return;
+    }
+    const offer = document.getElementById('offerInput').value.trim();
+    const target = document.getElementById('targetInput').value.trim();
+    const region = document.getElementById('regionInput').value.trim();
+    const criteria = document.getElementById('criteriaInput').value.trim();
+
+    if (!offer || !target || !region) {
+      showError('Bitte fülle dein Angebot, deinen Wunschkunden und die Region aus! 💕');
+      return;
+    }
+
+    lastOffer = offer; lastTarget = target; lastRegion = region; lastCriteria = criteria;
+    currentLeads = [];
+
+    setLoading(true);
+    document.getElementById('resultsSection').classList.remove('show');
+
+    try {
+      const system = buildSystemPrompt(offer);
+      const userPrompt = buildUserPrompt(offer, target, region, criteria, selectedCount, []);
+      const maxUses = Math.min(selectedCount * 2, 20);
+      const result = await callClaudeSearch(system, userPrompt, maxUses);
+
+      setLoading(false);
+      const leads = parseLeads(result);
+      currentLeads = leads;
+      renderLeads(leads, false, result);
+    } catch (err) {
+      setLoading(false);
+      showError('Ups, da hat was nicht geklappt. Versuch es nochmal! 🙈 (' + err.message + ')');
+    }
+  }
+
+  async function loadMoreLeads() {
+    if (!lastOffer) return;
+    const moreBtn = document.getElementById('moreBtn');
+    moreBtn.disabled = true;
+    moreBtn.textContent = '🔎 Suche läuft …';
+
+    try {
+      const system = buildSystemPrompt(lastOffer);
+      const excludeList = currentLeads.map(l => l.firma).filter(Boolean);
+      const userPrompt = buildUserPrompt(lastOffer, lastTarget, lastRegion, lastCriteria, selectedCount, excludeList);
+      const maxUses = Math.min(selectedCount * 2, 20);
+      const result = await callClaudeSearch(system, userPrompt, maxUses);
+      const newLeads = parseLeads(result);
+      currentLeads = currentLeads.concat(newLeads);
+      renderLeads(newLeads, true);
+    } catch (err) {
+      showError('Fehler bei der Suche nach weiteren Leads: ' + err.message);
+    } finally {
+      moreBtn.disabled = false;
+      moreBtn.textContent = '🔎 Weitere Leads finden';
+    }
+  }
+
+  function setLoading(show) {
+    document.getElementById('genBtn').disabled = show;
+    document.getElementById('errorBox').classList.remove('show');
+    document.getElementById('loadingState').classList.toggle('show', show);
+  }
+
+  function escapeHtml(text) {
+    return String(text)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  function safeUrl(url) {
+    if (typeof url !== 'string') return null;
+    const trimmed = url.trim();
+    if (/^https?:\/\//i.test(trimmed)) return trimmed;
+    return null;
+  }
+
+  function fieldValue(v) {
+    const val = (v === undefined || v === null || String(v).trim() === '') ? 'nicht gefunden' : String(v).trim();
+    const isMissing = val.toLowerCase().includes('nicht gefunden');
+    return { text: val, missing: isMissing };
+  }
+
+  function renderLeads(leads, append, rawText) {
+    const container = document.getElementById('leadsContainer');
+    if (!append) container.innerHTML = '';
+
+    if (!leads.length && !append) {
+      container.innerHTML = '<div class="raw-fallback">Keine Leads gefunden. Versuch es mit einer breiteren Branche oder Region.</div>';
+    }
+
+    leads.forEach((lead, i) => {
+      const globalIndex = currentLeads.indexOf(lead);
+      const el = document.createElement('div');
+      el.className = 'lead-card';
+      el.style.animationDelay = (i * 0.08) + 's';
+
+      const firma = fieldValue(lead.firma);
+      const ansprechpartner = fieldValue(lead.ansprechpartner);
+      const telefon = fieldValue(lead.telefon);
+      const email = fieldValue(lead.email);
+      const website = safeUrl(lead.website);
+      const adresse = fieldValue(lead.adresse);
+      const quelle = safeUrl(lead.quelle);
+      const begruendung = lead.begruendung ? escapeHtml(lead.begruendung) : '';
+
+      el.innerHTML = `
+        <div class="lead-header">
+          <div class="lead-label">🏢 ${escapeHtml(firma.text)}</div>
+          <button class="copy-btn" onclick="copyLead(${globalIndex}, this)">Kopieren</button>
+        </div>
+        <dl class="lead-fields">
+          <dt>👤 Ansprechpartner</dt><dd class="${ansprechpartner.missing ? 'missing' : ''}">${escapeHtml(ansprechpartner.text)}</dd>
+          <dt>📞 Telefon</dt><dd class="${telefon.missing ? 'missing' : ''}">${escapeHtml(telefon.text)}</dd>
+          <dt>📧 E-Mail</dt><dd class="${email.missing ? 'missing' : ''}">${escapeHtml(email.text)}</dd>
+          <dt>🌐 Website</dt><dd>${website ? `<a href="${escapeHtml(website)}" target="_blank" rel="noopener">${escapeHtml(website)}</a>` : 'nicht gefunden'}</dd>
+          <dt>📍 Adresse</dt><dd class="${adresse.missing ? 'missing' : ''}">${escapeHtml(adresse.text)}</dd>
+          ${begruendung ? `<dt>💡 Warum</dt><dd>${begruendung}</dd>` : ''}
+          <dt>🔗 Quelle</dt><dd>${quelle ? `<a href="${escapeHtml(quelle)}" target="_blank" rel="noopener">${escapeHtml(quelle)}</a>` : 'nicht gefunden'}</dd>
+        </dl>
+        <div class="lead-footer">
+          <button class="draft-btn" onclick="toggleDraft(${globalIndex}, this)">✉️ Anschreiben-Entwurf</button>
+        </div>
+        <div class="email-draft" id="draft-${globalIndex}"></div>
+      `;
+      container.appendChild(el);
+    });
+
+    document.getElementById('resultsTitle').textContent = `✦ Deine Leads (${currentLeads.length})`;
+    document.getElementById('resultsDivider').style.display = 'block';
+    document.getElementById('resultsSection').classList.add('show');
+
+    if (!append) {
+      document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    if (rawText && !leads.length) {
+      const fallback = document.createElement('div');
+      fallback.className = 'raw-fallback';
+      fallback.textContent = rawText;
+      container.appendChild(fallback);
+    }
+  }
+
+  function leadToText(lead) {
+    return `${lead.firma || ''}
+Ansprechpartner: ${lead.ansprechpartner || 'nicht gefunden'}
+Telefon: ${lead.telefon || 'nicht gefunden'}
+E-Mail: ${lead.email || 'nicht gefunden'}
+Website: ${lead.website || 'nicht gefunden'}
+Adresse: ${lead.adresse || 'nicht gefunden'}
+Quelle: ${lead.quelle || 'nicht gefunden'}`;
+  }
+
+  function copyLead(index, btn) {
+    const lead = currentLeads[index];
+    if (!lead) return;
+    navigator.clipboard.writeText(leadToText(lead)).then(() => {
+      const original = btn.textContent;
+      btn.textContent = '✓ Kopiert!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = original; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+
+  function copyAllLeads(btn) {
+    const allText = currentLeads.map(leadToText).join('\n\n---\n\n');
+    navigator.clipboard.writeText(allText).then(() => {
+      const original = btn.textContent;
+      btn.textContent = '✓ Alles kopiert!';
+      setTimeout(() => { btn.textContent = original; }, 2000);
+    });
+  }
+
+  function csvEscape(value) {
+    const str = String(value === undefined || value === null ? '' : value);
+    if (/[",\n]/.test(str)) {
+      return '"' + str.replace(/"/g, '""') + '"';
+    }
+    return str;
+  }
+
+  function exportCsv() {
+    if (!currentLeads.length) return;
+    const headers = ['Firma', 'Ansprechpartner', 'Telefon', 'E-Mail', 'Website', 'Adresse', 'Begruendung', 'Quelle'];
+    const rows = [headers.join(',')];
+    currentLeads.forEach(l => {
+      rows.push([
+        csvEscape(l.firma), csvEscape(l.ansprechpartner), csvEscape(l.telefon),
+        csvEscape(l.email), csvEscape(l.website), csvEscape(l.adresse),
+        csvEscape(l.begruendung), csvEscape(l.quelle)
+      ].join(','));
+    });
+    const csvContent = '﻿' + rows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const today = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = `fraumemu-leads-${today}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  async function toggleDraft(index, btn) {
+    const draftEl = document.getElementById('draft-' + index);
+    if (draftEl.classList.contains('show')) {
+      draftEl.classList.remove('show');
+      return;
+    }
+    if (draftEl.textContent.trim()) {
+      draftEl.classList.add('show');
+      return;
+    }
+
+    const lead = currentLeads[index];
+    if (!lead) return;
+
+    const originalLabel = btn.textContent;
+    btn.textContent = '✉️ Schreibe …';
+    btn.disabled = true;
+
+    const prompt = `Du hilfst bei der professionellen Kundenansprache. Mein Angebot: "${lastOffer}".
+Schreibe einen kurzen, freundlichen und professionellen deutschen Erstkontakt-E-Mail-Entwurf an folgenden potenziellen Kunden:
+Firma/Person: ${lead.firma || ''}
+Ansprechpartner: ${lead.ansprechpartner && !String(lead.ansprechpartner).includes('nicht gefunden') ? lead.ansprechpartner : ''}
+Begründung für die Passung: ${lead.begruendung || ''}
+
+Format:
+BETREFF: ...
+E-MAIL: ... (max. 150 Wörter, persönlich, kein Spam-Ton, klarer nächster Schritt/CTA am Ende, Signatur-Platzhalter "[Dein Name]")
+
+Nur den E-Mail-Entwurf, keine weiteren Erklärungen. Falls kein Ansprechpartner bekannt ist, nutze eine neutrale Anrede ("Sehr geehrtes Team von ...").`;
+
+    try {
+      const draft = await callClaudePlain(prompt);
+      draftEl.textContent = draft;
+      draftEl.classList.add('show');
+    } catch (err) {
+      draftEl.textContent = 'Fehler beim Erstellen des Entwurfs: ' + err.message;
+      draftEl.classList.add('show');
+    } finally {
+      btn.textContent = originalLabel;
+      btn.disabled = false;
+    }
+  }
+
+  function showError(msg) {
+    const box = document.getElementById('errorBox');
+    box.textContent = msg;
+    box.classList.add('show');
+  }
+</script>
+</body>
+</html>
